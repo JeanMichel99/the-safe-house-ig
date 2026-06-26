@@ -1,0 +1,33 @@
+name: Post to Instagram
+
+on:
+  # Mon / Wed / Fri at 10:00 UTC = 12:00 CEST (Belgium summer time)
+  schedule:
+    - cron: '0 10 * * 1,3,5'
+
+  # Allow a manual trigger from the Actions tab (useful for testing)
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Post carousel to Instagram
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID:      ${{ secrets.INSTAGRAM_USER_ID }}
+          GITHUB_RAW_BASE:        https://raw.githubusercontent.com/${{ github.repository }}/main
+        run: python post_instagram.py
